@@ -1,3 +1,6 @@
+# Conan-specific
+build
+
 # Prerequisites
 *.d
 
