@@ -1,5 +1,6 @@
 # Conan-specific
 build
+CMakeUserPresets.json
 
 # Prerequisites
 *.d
