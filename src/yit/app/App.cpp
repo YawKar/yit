@@ -63,7 +63,11 @@ void yit::App::subcommand_init(std::vector<std::string>& args) {
     po::options_description init_options("Initialization options");
     init_options.add_options()
         ("help", "produce help message")
-        ("path,p", po::value<std::string>()->required()->value_name("path"), "path to the folder in which repository should be initialized");
+        (
+            "path,p", 
+            po::value<std::string>()->required()->value_name("path"), 
+            "path to the folder in which repository should be initialized (positional argument)"
+        );
 
     po::positional_options_description init_positional;
     init_positional
@@ -78,7 +82,7 @@ void yit::App::subcommand_init(std::vector<std::string>& args) {
     po::variables_map init_vm;
     po::store(parsed_options, init_vm);
     
-    auto unrecognized = po::collect_unrecognized(parsed_options.options, po::include_positional);
+    auto unrecognized = po::collect_unrecognized(parsed_options.options, po::exclude_positional);
     print_warning_about_unrecognized_options(unrecognized);
 
     if (init_vm.count("help")) {
