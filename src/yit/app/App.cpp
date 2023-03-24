@@ -4,9 +4,8 @@
 
 namespace po = boost::program_options;
 
-yit::App::App(int argc, char* argv[]) : args(argv + 1, argv + argc) {}
-
-void yit::App::run() {
+void yit::App::run(int _argc, char* _argv[]) {
+    std::vector<std::string> args(_argv + 1, _argv + _argc);
     po::options_description global_options("Global options");
     global_options.add_options()
         ("command", po::value<std::string>(), "command to execute")
@@ -17,7 +16,7 @@ void yit::App::run() {
         .add("command", 1)
         .add("subargs", -1);
     
-    po::parsed_options parsed = po::command_line_parser(this->args)
+    po::parsed_options parsed = po::command_line_parser(args)
         .options(global_options)
         .positional(global_positional)
         .allow_unregistered()
@@ -27,7 +26,11 @@ void yit::App::run() {
     po::store(parsed, global_vm);
 
     if (!global_vm.count("command")) {
-        std::cout << "No subcommand was specified" << std::endl;
+        if (does_contain_general_help(args)) {
+            std::cout << "Imagine this is a help message ^_^" << std::endl;
+        } else {
+            std::cout << "Subcommand not specified" << std::endl;
+        }
     } else if (global_vm["command"].as<std::string>() == "init") {
         std::vector<std::string> subargs = po::collect_unrecognized(parsed.options, po::include_positional);
         subargs.erase(subargs.begin());
@@ -37,10 +40,29 @@ void yit::App::run() {
     }
 }
 
+/// @brief This method is solely designed to be used in non-terminal subcommands. 
+///        If command is terminal, you should implement `--help` on your own.
+/// @param args arguments to look for `--help`
+/// @return whether args contain `--help`
+bool yit::App::does_contain_general_help(std::vector<std::string>& args) {
+    po::options_description help_option("Generic help option");
+    help_option.add_options()
+        ("help", "produce help message");
+    
+    po::parsed_options parsed = po::command_line_parser(args)
+        .options(help_option)
+        .allow_unregistered()
+        .run();
+    
+    po::variables_map help_vm;
+    po::store(parsed, help_vm);
+    return help_vm.count("help");
+}
+
 void yit::App::subcommand_init(std::vector<std::string>& args) {
     po::options_description init_options("Initialization options");
     init_options.add_options()
-        ("help", "produces this message")
+        ("help", "produce help message")
         ("path,p", po::value<std::string>()->required()->value_name("path"), "path to the folder in which repository should be initialized");
 
     po::positional_options_description init_positional;
@@ -56,12 +78,26 @@ void yit::App::subcommand_init(std::vector<std::string>& args) {
     po::variables_map init_vm;
     po::store(parsed_options, init_vm);
     
+    auto unrecognized = po::collect_unrecognized(parsed_options.options, po::include_positional);
+    print_warning_about_unrecognized_options(unrecognized);
+
     if (init_vm.count("help")) {
         std::cout << init_options << std::endl;
     } else if (init_vm.count("path")) {
         std::cout << "initialized repo at path: " << init_vm["path"].as<std::string>() << std::endl;
     } else {
-        std::cout << "No action was specified" << std::endl;
-        std::cout << init_options << std::endl;
+        std::cout << "Path not specified" << std::endl;
+    }
+}
+
+/// @brief This method is solely designed to be used in terminal subcommands. Prints warning in which enumerates all unrecognized options.
+/// @param unrecognized vector of unrecognized options.
+void yit::App::print_warning_about_unrecognized_options(std::vector<std::string>& unrecognized) {
+    if (!unrecognized.empty()) {
+        std::cout << "*Warning! These options were not recognized: ";
+        for (std::size_t i = 0; i < unrecognized.size(); ++i) {
+            std::cout << (i ? ", " : "") << '"' << unrecognized[i] << '"';
+        }
+        std::cout << std::endl;
     }
 }

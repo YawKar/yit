@@ -2,7 +2,7 @@
 #include "yit/yit.hpp"
 
 int main(int argc, char* argv[]) {
-  yit::App app(argc, argv);
-  app.run();
+  yit::App app;
+  app.run(argc, argv);
   return 0;
 }
