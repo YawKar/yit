@@ -1,7 +1,8 @@
 #include <iostream>
+#include "yit/yit.hpp"
 
 int main(int argc, char* argv[]) {
-  std::cout << "Hello, world!" << std::endl;
+  yit::App app(argc, argv);
+  app.run();
   return 0;
 }
-
