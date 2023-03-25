@@ -1,6 +1,7 @@
 [requires]
 boost/1.81.0
 fmt/9.1.0
+zstr/1.0.7
 
 [generators]
 CMakeDeps

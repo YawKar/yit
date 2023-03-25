@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Find packages
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
+find_package(zstr REQUIRED)
 
 # Add modules
 ## Add actions
@@ -32,3 +33,4 @@ add_executable(${PROJECT_NAME} ${SRCS})
 # Link targets with libraries
 target_link_libraries(${PROJECT_NAME} boost::boost)
 target_link_libraries(${PROJECT_NAME} fmt::fmt)
+target_link_libraries(${PROJECT_NAME} zstr::zstr)
