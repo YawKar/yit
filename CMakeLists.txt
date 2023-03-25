@@ -9,8 +9,10 @@ find_package(Boost REQUIRED)
 # Add subfolders
 set(MAIN src/main.cpp)
 
+set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
+set(YIT_ACTIONS ${YIT_INIT_ACTION})
 set(YIT_APP src/yit/app/App.cpp)
-set(YIT ${YIT_APP})
+set(YIT ${YIT_APP} ${YIT_ACTIONS})
 
 # Combine sources
 set(SRCS ${MAIN} ${YIT})
