@@ -23,11 +23,11 @@ namespace yit {
                 throw std::runtime_error(".yit folder already exists. If you want to reinitialize repository, perhaps, delete the existing .yit folder.");
             }
             fs::create_directory(yit_folder);
-            auto objects_folder = path_obj / "objects";
+            auto objects_folder = yit_folder / "objects";
             fs::create_directory(objects_folder);
-            auto refs_folder = path_obj / "refs";
+            auto refs_folder = yit_folder / "refs";
             fs::create_directory(refs_folder);
-            auto head_ref_file = path_obj / "HEAD";
+            auto head_ref_file = yit_folder / "HEAD";
             fs::ofstream head_ref(head_ref_file);
             head_ref << "ref: refs/heads/master\n";
 
