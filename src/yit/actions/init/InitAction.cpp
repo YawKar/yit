@@ -27,4 +27,6 @@ void yit::actions::InitAction::init_repository(std::string path) {
     auto head_ref_file = path_obj / "HEAD";
     fs::ofstream head_ref(head_ref_file);
     head_ref << "ref: refs/heads/master\n";
+
+    std::cout << "Initialized empty Yit repository in " << yit_folder << std::endl;
 }
