@@ -1,7 +1,7 @@
 #include "App.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
-#include "../actions/init/InitAction.hpp"
+#include "../actions/actions.hpp"
 
 namespace po = boost::program_options;
 
@@ -34,18 +34,24 @@ namespace yit {
                 help_option.add_options()
                     ("help", "produce this help message");
                 std::cout << help_option << std::endl;
-                std::cout << "Available subcommands:" << std::endl;
+                std::cout << "Initialization subcommands:" << std::endl;
                 std::cout << "\tinit" << "\t\tCreate an empty Yit repository" << std::endl;
                 std::cout << "\tclone" << "\t\tClone a repository into a new directory" << std::endl;
+                std::cout << "Object database subcommands:" << std::endl;
+                std::cout << "\tcat-file" << "\tProvide content or type and size information for repository objects" << std::endl;
             } else {
-                std::cout << "Subcommand not specified" << std::endl;
+                std::cout << "ERROR! Subcommand not specified" << std::endl;
             }
         } else if (global_vm["command"].as<std::string>() == "init") {
             std::vector<std::string> subargs = po::collect_unrecognized(parsed.options, po::include_positional);
             subargs.erase(subargs.begin());
             this->subcommand_init(subargs);
+        } else if (global_vm["command"].as<std::string>() == "cat-file") {
+            std::vector<std::string> subargs = po::collect_unrecognized(parsed.options, po::include_positional);
+            subargs.erase(subargs.begin());
+            this->subcommand_cat_file(subargs);
         } else {
-            std::cout << "Unknown command: " << global_vm["command"].as<std::string>() << std::endl;
+            std::cout << "ERROR! Unknown command: " << global_vm["command"].as<std::string>() << std::endl;
         }
     }
 
@@ -69,7 +75,7 @@ namespace yit {
     }
 
     void App::subcommand_init(std::vector<std::string>& args) {
-        po::options_description init_options("Initialization options");
+        po::options_description init_options("init options");
         init_options.add_options()
             ("help", "produce help message")
             (
@@ -96,14 +102,51 @@ namespace yit {
 
         if (init_vm.count("help")) {
             std::cout << init_options << std::endl;
-        } else if (init_vm.count("path")) {
+        } else if (!init_vm.count("path")) {
+            std::cout << "ERROR! Path was not specified (--path, -p)" << std::endl;
+        } else {
             try {
                 actions::InitAction::init_repository(init_vm["path"].as<std::string>());
             } catch (std::runtime_error e) {
                 std::cout << "ERROR! " << e.what() << std::endl;
             }
+        }
+    }
+
+    void App::subcommand_cat_file(std::vector<std::string>& args) {
+        po::options_description cat_file_options("cat-file options");
+        cat_file_options.add_options()
+            ("help", "produce help message")
+            ("object", po::value<std::string>()->required()->value_name("SHA-1"), "the SHA-1 checksum name of the object to show (positional argument)")
+            ("pretty,p", "pretty-print the contents of <object> based on its type");
+        
+        po::positional_options_description cat_file_positional;
+        cat_file_positional
+            .add("object", 1);
+
+        po::parsed_options parsed_options = po::command_line_parser(args)
+            .options(cat_file_options)
+            .positional(cat_file_positional)
+            .allow_unregistered()
+            .run();
+
+        po::variables_map cat_file_vm;
+        po::store(parsed_options, cat_file_vm);
+        
+        auto unrecognized = po::collect_unrecognized(parsed_options.options, po::exclude_positional);
+        print_warning_about_unrecognized_options(unrecognized);
+
+        if (cat_file_vm.count("help")) {
+            std::cout << cat_file_options << std::endl;
+        } else if (!cat_file_vm.count("object")) {
+            std::cout << "ERROR! Object name was not specified" << std::endl;
         } else {
-            std::cout << "Path not specified" << std::endl;
+            try {
+                bool is_pretty_printing = cat_file_vm.count("p");
+                actions::CatFileAction::cat_file(cat_file_vm["object"].as<std::string>(), is_pretty_printing);
+            } catch (std::runtime_error e) {
+                std::cout << "ERROR! " << e.what() << std::endl;
+            }
         }
     }
 
