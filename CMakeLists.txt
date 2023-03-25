@@ -6,13 +6,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Find packages
 find_package(Boost REQUIRED)
 
-# Add subfolders
-set(MAIN src/main.cpp)
-
+# Add modules
+## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
-set(YIT_ACTIONS ${YIT_INIT_ACTION})
+set(YIT_CAT_FILE_ACTION src/yit/actions/catfile/CatFileAction.cpp)
+set(YIT_ACTIONS ${YIT_INIT_ACTION} ${YIT_CAT_FILE_ACTION})
+## Add utils
+set(YIT_UTILS src/yit/utils/utils.cpp)
+## Add app
 set(YIT_APP src/yit/app/App.cpp)
-set(YIT ${YIT_APP} ${YIT_ACTIONS})
+
+## Combine YIT
+set(YIT ${YIT_APP} ${YIT_ACTIONS} ${YIT_UTILS})
+
+# Add main
+set(MAIN src/main.cpp)
 
 # Combine sources
 set(SRCS ${MAIN} ${YIT})
