@@ -142,7 +142,7 @@ namespace yit {
             std::cout << "ERROR! Object name was not specified" << std::endl;
         } else {
             try {
-                bool is_pretty_printing = cat_file_vm.count("p");
+                bool is_pretty_printing = cat_file_vm.count("pretty");
                 actions::CatFileAction::cat_file(cat_file_vm["object"].as<std::string>(), is_pretty_printing);
             } catch (std::runtime_error e) {
                 std::cout << "ERROR! " << e.what() << std::endl;
