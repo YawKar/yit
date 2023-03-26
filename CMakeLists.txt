@@ -9,6 +9,9 @@ find_package(fmt REQUIRED)
 find_package(zstr REQUIRED)
 
 # Add modules
+## Add internals
+set(YIT_REPOSITORY src/yit/internals/YitRepository.cpp)
+set(YIT_INTERNALS ${YIT_REPOSITORY})
 ## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
 set(YIT_CAT_FILE_ACTION src/yit/actions/catfile/CatFileAction.cpp)
@@ -19,7 +22,7 @@ set(YIT_UTILS src/yit/utils/utils.cpp)
 set(YIT_APP src/yit/app/App.cpp)
 
 ## Combine YIT
-set(YIT ${YIT_APP} ${YIT_ACTIONS} ${YIT_UTILS})
+set(YIT ${YIT_APP} ${YIT_ACTIONS} ${YIT_UTILS} ${YIT_INTERNALS})
 
 # Add main
 set(MAIN src/main.cpp)
