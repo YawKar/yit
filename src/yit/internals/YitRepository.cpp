@@ -5,32 +5,45 @@
 
 namespace yit::internals {
 
-    YitRepository YitRepository::initialize(const fs::path& path) {
-        YitRepository repo(path, true);
+    YitRepository YitRepository::initialize(const fs::path& work_tree_path) {
+        YitRepository repo(work_tree_path, true);
         if (fs::exists(repo.yit_dir)) {
             throw std::runtime_error(fmt::format(".yit folder already exists: {}", repo.yit_dir.string()));
         }
-        repo.get_repo_dir({"branches"});
-        repo.get_repo_dir({"objects"});
-        repo.get_repo_dir({"refs", "tags"});
-        repo.get_repo_dir({"refs", "heads"});
+        repo.get_repo_dir({"branches"}, true);
+        repo.get_repo_dir({"objects"}, true);
+        repo.get_repo_dir({"refs", "tags"}, true);
+        repo.get_repo_dir({"refs", "heads"}, true);
 
-        fs::ofstream description(repo.get_repo_file({"description"}));
+        fs::ofstream description(repo.get_repo_file({"description"}, true));
         description << "Unnamed repository; edit this file 'description' to name the repository.\n";
 
-        fs::ofstream head(repo.get_repo_file({"HEAD"}));
+        fs::ofstream head(repo.get_repo_file({"HEAD"}, true));
         head << "ref: refs/heads/master\n";
 
         auto config = default_config();
-        pt::write_ini(repo.get_repo_file({"config"}).string(), config);
+        pt::write_ini(repo.get_repo_file({"config"}, true).string(), config);
 
         return repo;
+    }
+
+    std::optional<YitRepository> YitRepository::lookup_for_root_repository() {
+        auto cwd = fs::current_path();
+        do {
+            for (fs::directory_entry& sub : fs::directory_iterator(cwd)) { 
+                if (fs::is_directory(sub) && sub.path().filename() == ".yit") {
+                    return std::optional<YitRepository>(YitRepository(cwd, false));
+                }
+            }
+            cwd = cwd.parent_path();
+        } while (!cwd.empty());
+        return std::optional<YitRepository>();
     }
 
     pt::ptree YitRepository::default_config() {
         pt::ptree config;
         // yit only supports 0. https://git-scm.com/docs/repository-version
-        config.put("core.rerepositoryformatversion", 0);
+        config.put("core.repositoryformatversion", 0);
         // yit doesn't track the executable bit of files in the working tree. https://git-scm.com/docs/git-config#Documentation/git-config.txt-corefileMode
         config.put("core.filemode", false);
         // indicates that this repository has a worktree (thus not bare). https://git-scm.com/docs/git-config#Documentation/git-config.txt-corebare
@@ -38,7 +51,7 @@ namespace yit::internals {
         return config;
     }
     
-    YitRepository::YitRepository(const fs::path& path, bool force) : work_tree(path), yit_dir(path / ".yit") {
+    YitRepository::YitRepository(const fs::path& work_tree_path, bool force) : work_tree(work_tree_path), yit_dir(work_tree_path / ".yit") {
         if (!(fs::exists(yit_dir) && fs::is_directory(yit_dir) || force)) {
             throw std::runtime_error(fmt::format("Not a Yit repository: {}", work_tree.string()));
         }
@@ -58,7 +71,7 @@ namespace yit::internals {
         }
     }
 
-    fs::path YitRepository::get_repo_file(const std::initializer_list<fs::path> path) {
+    fs::path YitRepository::get_repo_file(const std::initializer_list<fs::path> path, bool mkdir) {
         if (path.size() == 0) {
             throw std::runtime_error(fmt::format("File is not specified"));
         }
@@ -69,10 +82,10 @@ namespace yit::internals {
             ++begin;
         }
         auto file = *begin;
-        return get_repo_dir({destination_dir_path}) / file;
+        return get_repo_dir({destination_dir_path}, mkdir) / file;
     }
 
-    fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path) {
+    fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path, bool mkdir) {
         auto repo_path = yit_dir;
         for (const auto& path_part : path) {
             repo_path /= path_part;
@@ -84,7 +97,9 @@ namespace yit::internals {
                 throw std::runtime_error(fmt::format("Not a directory", repo_path.string()));
             }
         }
-        fs::create_directories(repo_path);
+        if (mkdir) {
+            fs::create_directories(repo_path);
+        }
         return repo_path;
     }
 
