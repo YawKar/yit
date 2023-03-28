@@ -2,4 +2,4 @@
 #define YIT_HPP
 #include "app/App.hpp"
 
-#endif // YIT_HPP
+#endif  // YIT_HPP
