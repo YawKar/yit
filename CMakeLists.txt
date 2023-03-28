@@ -11,7 +11,8 @@ find_package(zstr REQUIRED)
 # Add modules
 ## Add internals
 set(YIT_REPOSITORY src/yit/internals/YitRepository.cpp)
-set(YIT_INTERNALS ${YIT_REPOSITORY})
+set(YIT_OBJECTS src/yit/internals/YitBlob.cpp)
+set(YIT_INTERNALS ${YIT_REPOSITORY} ${YIT_OBJECTS})
 ## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
 set(YIT_CAT_FILE_ACTION src/yit/actions/catfile/CatFileAction.cpp)
@@ -30,6 +31,13 @@ set(SRCS ${MAIN} ${YIT})
 
 # Add executables
 add_executable(${PROJECT_NAME} ${SRCS})
+
+# Add warnings
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion)
+endif()
 
 # Link targets with libraries
 target_link_libraries(${PROJECT_NAME} boost::boost)
