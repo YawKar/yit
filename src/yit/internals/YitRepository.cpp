@@ -60,7 +60,7 @@ pt::ptree YitRepository::default_config() {
 
 YitRepository::YitRepository(const fs::path& work_tree_path, bool force)
     : work_tree(work_tree_path), yit_dir(work_tree_path / ".yit") {
-  if (!(fs::exists(yit_dir) && fs::is_directory(yit_dir) || force)) {
+  if (!((fs::exists(yit_dir) && fs::is_directory(yit_dir)) || force)) {
     throw std::runtime_error(
         fmt::format("Not a Yit repository: {}", work_tree.string()));
   }
@@ -118,7 +118,13 @@ fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path,
   return repo_path;
 }
 
-std::variant<YitBlob> YitRepository::read_object(const std::string& sha) {
+bool YitRepository::is_valid_sha(const std::string& sha) {
+  return sha.length() == 40 && std::all_of(sha.begin(), sha.end(), [](char s) {
+           return std::isxdigit(s);
+         });
+}
+
+std::variant<YitBlob> YitRepository::read_object(const std::string sha) {
   if (!is_valid_sha(sha)) {
     throw std::runtime_error(fmt::format("Not a valid SHA-1 digest: {}", sha));
   }
@@ -132,7 +138,7 @@ std::variant<YitBlob> YitRepository::read_object(const std::string& sha) {
     throw std::runtime_error(
         fmt::format("Object not found: {}", lowercased_sha));
   }
-  zstr::ifstream object_file(object_path.string(), std::ios_base::ate);
+  zstr::ifstream object_file(object_path.string());
   object_file.unsetf(std::ios_base::skipws);
   std::string type;
   object_file >> type;
@@ -150,6 +156,11 @@ std::variant<YitBlob> YitRepository::read_object(const std::string& sha) {
     }
     size = std::stoi(size_str);
   }
+  fmt::print("type: {} size: {}\n", type, size);
+  if (type == "blob") {
+    return YitBlob(nullptr);
+  }
+  throw std::runtime_error("nothing");
 }
 
 fs::path YitRepository::get_work_tree() { return work_tree; }

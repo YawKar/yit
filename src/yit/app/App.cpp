@@ -112,7 +112,7 @@ void App::subcommand_init(std::vector<std::string>& args) {
   } else {
     try {
       actions::InitAction::init_repository(init_vm["path"].as<std::string>());
-    } catch (std::runtime_error e) {
+    } catch (const std::runtime_error& e) {
       std::cout << "ERROR! " << e.what() << std::endl;
     }
   }
@@ -150,7 +150,7 @@ void App::subcommand_cat_file(std::vector<std::string>& args) {
       bool is_pretty_printing = cat_file_vm.count("pretty");
       actions::CatFileAction::cat_file(cat_file_vm["object"].as<std::string>(),
                                        is_pretty_printing);
-    } catch (std::runtime_error e) {
+    } catch (const std::runtime_error& e) {
       std::cout << "ERROR! " << e.what() << std::endl;
     }
   }

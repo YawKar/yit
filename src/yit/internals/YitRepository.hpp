@@ -41,11 +41,7 @@ class YitRepository {
   /**
    * @brief Check whether the given `sha` string is indeed a valid SHA-1 digest.
    */
-  static bool is_valid_sha(const std::string& sha) {
-    return sha.length() == 40 &&
-           std::all_of(sha.begin(), sha.end(),
-                       [](char s) { return std::isxdigit(s); });
-  }
+  static bool is_valid_sha(const std::string& sha);
 
   /**
    * @brief Create a yit repository representation from the given path.
@@ -77,7 +73,7 @@ class YitRepository {
   fs::path get_repo_file(const std::initializer_list<fs::path> path,
                          bool mkdir);
 
-  std::variant<YitBlob> read_object(const std::string& sha);
+  std::variant<YitBlob> read_object(const std::string sha);
 
   /**
    * @return path to the working tree directory

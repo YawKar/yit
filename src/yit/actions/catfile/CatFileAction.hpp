@@ -5,16 +5,11 @@
 
 namespace fs = boost::filesystem;
 
-namespace yit {
-namespace actions {
+namespace yit::actions {
 class CatFileAction {
  public:
-  static void cat_file(const std::string& object_name, bool pretty_print);
-
- private:
-  static void pretty_print_object(const fs::path& object);
+  static void cat_file(const std::string object_name, bool pretty_print);
 };
-}  // namespace actions
-}  // namespace yit
+}  // namespace yit::actions
 
 #endif  // CAT_FILE_ACTION_HPP
