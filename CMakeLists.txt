@@ -11,7 +11,7 @@ find_package(zstr REQUIRED)
 # Add modules
 ## Add internals
 set(YIT_REPOSITORY src/yit/internals/YitRepository.cpp)
-set(YIT_OBJECTS src/yit/internals/YitBlob.cpp)
+set(YIT_OBJECTS src/yit/internals/YitBlob.cpp src/yit/internals/YitCommit.cpp src/yit/internals/YitTree.cpp src/yit/internals/YitTag.cpp)
 set(YIT_INTERNALS ${YIT_REPOSITORY} ${YIT_OBJECTS})
 ## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)

@@ -6,6 +6,9 @@
 #include <variant>
 
 #include "YitBlob.hpp"
+#include "YitCommit.hpp"
+#include "YitTag.hpp"
+#include "YitTree.hpp"
 
 namespace fs = boost::filesystem;
 namespace pt = boost::property_tree;
@@ -73,7 +76,8 @@ class YitRepository {
   fs::path get_repo_file(const std::initializer_list<fs::path> path,
                          bool mkdir);
 
-  std::variant<YitBlob> read_object(const std::string sha);
+  std::variant<YitBlob, YitTree, YitCommit, YitTag> read_object(
+      const std::string sha);
 
   /**
    * @return path to the working tree directory

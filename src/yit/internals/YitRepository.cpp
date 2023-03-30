@@ -124,7 +124,8 @@ bool YitRepository::is_valid_sha(const std::string& sha) {
          });
 }
 
-std::variant<YitBlob> YitRepository::read_object(const std::string sha) {
+std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
+    const std::string sha) {
   if (!is_valid_sha(sha)) {
     throw std::runtime_error(fmt::format("Not a valid SHA-1 digest: {}", sha));
   }
@@ -147,7 +148,7 @@ std::variant<YitBlob> YitRepository::read_object(const std::string sha) {
     throw std::runtime_error(fmt::format(
         "Malformed object {}: unknown type: {}", lowercased_sha, type));
   }
-  uint size = 0;
+  uint32_t size = 0;
   {
     std::string size_str;
     char c;
@@ -156,11 +157,28 @@ std::variant<YitBlob> YitRepository::read_object(const std::string sha) {
     }
     size = std::stoi(size_str);
   }
-  fmt::print("type: {} size: {}\n", type, size);
+  uint32_t compressed_content_size = 0;
+  while (!object_file.eof()) {
+    object_file.get();
+    ++compressed_content_size;
+  }
+  if (size != compressed_content_size - 1) {
+    throw std::runtime_error(
+        fmt::format("Malformed object {}: bad size (written: {}, real: {})",
+                    lowercased_sha, size, compressed_content_size));
+  }
   if (type == "blob") {
     return YitBlob(nullptr);
+  } else if (type == "commit") {
+    return YitCommit(nullptr);
+  } else if (type == "tree") {
+    return YitTree(nullptr);
+  } else if (type == "tag") {
+    return YitTag(nullptr);
+  } else {
+    throw std::runtime_error(fmt::format(
+        "Malformed object {}: unknown type: {}", lowercased_sha, type));
   }
-  throw std::runtime_error("nothing");
 }
 
 fs::path YitRepository::get_work_tree() { return work_tree; }
