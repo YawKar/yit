@@ -2,18 +2,19 @@
 #define YIT_TAG_HPP
 #include <memory>
 
+#include "YitObject.hpp"
+
 namespace yit::internals {
 
-class YitTag {
+class YitTag : public YitObject {
  public:
-  YitTag(std::shared_ptr<char*> data);
+  using YitObject::YitObject;
 
-  std::shared_ptr<char*> serialize();
+  std::vector<uint8_t> serialize() const override;
 
-  void deserialize(std::shared_ptr<char*> data);
+  void deserialize(std::vector<uint8_t>&& data) override;
 
- private:
-  std::shared_ptr<char*> blob_data;
+  void deserialize(const std::vector<uint8_t>& data) override;
 };
 
 }  // namespace yit::internals

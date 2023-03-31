@@ -2,9 +2,12 @@
 
 namespace yit::internals {
 
-YitCommit::YitCommit(std::shared_ptr<char*> data) { this->blob_data = data; }
+std::vector<uint8_t> YitCommit::serialize() const { return m_data; }
 
-std::shared_ptr<char*> YitCommit::serialize() { return nullptr; }
+void YitCommit::deserialize(std::vector<uint8_t>&& data) {
+  m_data = std::move(data);
+}
 
-void YitCommit::deserialize(std::shared_ptr<char*> data) { blob_data = data; }
+void YitCommit::deserialize(const std::vector<uint8_t>& data) { m_data = data; }
+
 }  // namespace yit::internals

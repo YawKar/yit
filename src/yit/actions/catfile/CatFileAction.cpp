@@ -19,10 +19,13 @@ void CatFileAction::cat_file(const std::string object_name, bool pretty_print) {
         "Not a yit repository (or any parent up to the system root)"));
   }
   auto repo = repo_opt.value();
+  auto object = repo.read_object(object_name);
   if (!pretty_print) {
     throw std::runtime_error("Currently, --pretty (-p) is required!");
   } else {
-    repo.read_object(object_name);
+    if (std::holds_alternative<internals::YitBlob>(object)) {
+      std::cout << std::get<internals::YitBlob>(object).serialize().data();
+    }
   }
 }
 }  // namespace yit::actions

@@ -2,9 +2,12 @@
 
 namespace yit::internals {
 
-YitTag::YitTag(std::shared_ptr<char*> data) { this->blob_data = data; }
+std::vector<uint8_t> YitTag::serialize() const { return m_data; }
 
-std::shared_ptr<char*> YitTag::serialize() { return nullptr; }
+void YitTag::deserialize(std::vector<uint8_t>&& data) {
+  m_data = std::move(data);
+}
 
-void YitTag::deserialize(std::shared_ptr<char*> data) { blob_data = data; }
+void YitTag::deserialize(const std::vector<uint8_t>& data) { m_data = data; }
+
 }  // namespace yit::internals

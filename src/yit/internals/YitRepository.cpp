@@ -1,5 +1,7 @@
 #include "YitRepository.hpp"
 
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/sha.h>
 #include <fmt/core.h>
 
 #include <boost/filesystem/fstream.hpp>
@@ -157,28 +159,35 @@ std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
     }
     size = std::stoi(size_str);
   }
-  uint32_t compressed_content_size = 0;
+  std::vector<uint8_t> content;
   while (!object_file.eof()) {
-    object_file.get();
-    ++compressed_content_size;
+    content.push_back(static_cast<char>(object_file.get()));
   }
-  if (size != compressed_content_size - 1) {
+  content.pop_back();
+  content.shrink_to_fit();
+  if (size != content.size()) {
     throw std::runtime_error(
         fmt::format("Malformed object {}: bad size (written: {}, real: {})",
-                    lowercased_sha, size, compressed_content_size));
+                    lowercased_sha, size, content.size()));
   }
   if (type == "blob") {
-    return YitBlob(nullptr);
+    return YitBlob(std::move(content));
   } else if (type == "commit") {
-    return YitCommit(nullptr);
+    return YitCommit(std::move(content));
   } else if (type == "tree") {
-    return YitTree(nullptr);
+    return YitTree(std::move(content));
   } else if (type == "tag") {
-    return YitTag(nullptr);
+    return YitTag(std::move(content));
   } else {
     throw std::runtime_error(fmt::format(
         "Malformed object {}: unknown type: {}", lowercased_sha, type));
   }
+}
+
+std::string YitRepository::write_object(const YitObject& object) {
+  // TODO: rewrite using OOP
+  std::string result = std::to_string(object.serialize().size());
+  return result;
 }
 
 fs::path YitRepository::get_work_tree() { return work_tree; }

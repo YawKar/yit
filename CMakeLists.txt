@@ -7,11 +7,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
 find_package(zstr REQUIRED)
+find_package(cryptopp REQUIRED)
 
 # Add modules
 ## Add internals
 set(YIT_REPOSITORY src/yit/internals/YitRepository.cpp)
-set(YIT_OBJECTS src/yit/internals/YitBlob.cpp src/yit/internals/YitCommit.cpp src/yit/internals/YitTree.cpp src/yit/internals/YitTag.cpp)
+set(YIT_OBJECTS src/yit/internals/YitObject.cpp src/yit/internals/YitBlob.cpp src/yit/internals/YitCommit.cpp src/yit/internals/YitTree.cpp src/yit/internals/YitTag.cpp)
 set(YIT_INTERNALS ${YIT_REPOSITORY} ${YIT_OBJECTS})
 ## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
@@ -43,3 +44,4 @@ endif()
 target_link_libraries(${PROJECT_NAME} boost::boost)
 target_link_libraries(${PROJECT_NAME} fmt::fmt)
 target_link_libraries(${PROJECT_NAME} zstr::zstr)
+target_link_libraries(${PROJECT_NAME} cryptopp::cryptopp)

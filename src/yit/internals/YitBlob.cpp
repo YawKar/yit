@@ -2,9 +2,12 @@
 
 namespace yit::internals {
 
-YitBlob::YitBlob(std::shared_ptr<char*> data) { this->blob_data = data; }
+std::vector<uint8_t> YitBlob::serialize() const { return m_data; }
 
-std::shared_ptr<char*> YitBlob::serialize() { return nullptr; }
+void YitBlob::deserialize(std::vector<uint8_t>&& data) {
+  m_data = std::move(data);
+}
 
-void YitBlob::deserialize(std::shared_ptr<char*> data) { blob_data = data; }
+void YitBlob::deserialize(const std::vector<uint8_t>& data) { m_data = data; }
+
 }  // namespace yit::internals

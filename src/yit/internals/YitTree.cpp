@@ -2,9 +2,12 @@
 
 namespace yit::internals {
 
-YitTree::YitTree(std::shared_ptr<char*> data) { this->blob_data = data; }
+std::vector<uint8_t> YitTree::serialize() const { return m_data; }
 
-std::shared_ptr<char*> YitTree::serialize() { return nullptr; }
+void YitTree::deserialize(std::vector<uint8_t>&& data) {
+  m_data = std::move(data);
+}
 
-void YitTree::deserialize(std::shared_ptr<char*> data) { blob_data = data; }
+void YitTree::deserialize(const std::vector<uint8_t>& data) { m_data = data; }
+
 }  // namespace yit::internals

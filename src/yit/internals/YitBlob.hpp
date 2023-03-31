@@ -1,19 +1,21 @@
 #ifndef YIT_BLOB_HPP
 #define YIT_BLOB_HPP
 #include <memory>
+#include <vector>
+
+#include "YitObject.hpp"
 
 namespace yit::internals {
 
-class YitBlob {
+class YitBlob : public YitObject {
  public:
-  YitBlob(std::shared_ptr<char*> data);
+  using YitObject::YitObject;
 
-  std::shared_ptr<char*> serialize();
+  std::vector<uint8_t> serialize() const override;
 
-  void deserialize(std::shared_ptr<char*> data);
+  void deserialize(std::vector<uint8_t>&& data) override;
 
- private:
-  std::shared_ptr<char*> blob_data;
+  void deserialize(const std::vector<uint8_t>& data) override;
 };
 
 }  // namespace yit::internals
