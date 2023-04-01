@@ -8,7 +8,9 @@ namespace yit::internals {
 
 class YitCommit : public YitObject {
  public:
-  using YitObject::YitObject;
+  YitCommit(std::vector<uint8_t>&& data) noexcept;
+
+  YitCommit(const std::vector<uint8_t>& data) noexcept;
 
   std::vector<uint8_t> serialize() const override;
 

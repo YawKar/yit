@@ -9,7 +9,9 @@ namespace yit::internals {
 
 class YitBlob : public YitObject {
  public:
-  using YitObject::YitObject;
+  YitBlob(std::vector<uint8_t>&& data) noexcept;
+
+  YitBlob(const std::vector<uint8_t>& data) noexcept;
 
   std::vector<uint8_t> serialize() const override;
 

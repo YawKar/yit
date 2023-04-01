@@ -1,6 +1,15 @@
 #include "YitCommit.hpp"
 
 namespace yit::internals {
+YitCommit::YitCommit(std::vector<uint8_t>&& data) noexcept
+    : YitObject(std::move(data)) {
+  m_type = YitType::commit;
+}
+
+YitCommit::YitCommit(const std::vector<uint8_t>& data) noexcept
+    : YitObject(data) {
+  m_type = YitType::commit;
+}
 
 std::vector<uint8_t> YitCommit::serialize() const { return m_data; }
 

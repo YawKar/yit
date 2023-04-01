@@ -8,7 +8,9 @@ namespace yit::internals {
 
 class YitTree : public YitObject {
  public:
-  using YitObject::YitObject;
+  YitTree(std::vector<uint8_t>&& data) noexcept;
+
+  YitTree(const std::vector<uint8_t>& data) noexcept;
 
   std::vector<uint8_t> serialize() const override;
 

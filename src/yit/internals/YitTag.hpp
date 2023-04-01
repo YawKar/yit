@@ -8,7 +8,9 @@ namespace yit::internals {
 
 class YitTag : public YitObject {
  public:
-  using YitObject::YitObject;
+  YitTag(std::vector<uint8_t>&& data) noexcept;
+
+  YitTag(const std::vector<uint8_t>& data) noexcept;
 
   std::vector<uint8_t> serialize() const override;
 
