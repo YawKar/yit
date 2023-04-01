@@ -15,8 +15,7 @@ namespace yit::actions {
 void CatFileAction::cat_file(const std::string object_name, bool pretty_print) {
   auto repo_opt = yit::internals::YitRepository::lookup_for_root_repository();
   if (!repo_opt.has_value()) {
-    throw std::runtime_error(fmt::format(
-        "Not a yit repository (or any parent up to the system root)"));
+    throw std::runtime_error(fmt::format("Not a yit repository (or any parent up to the system root)"));
   }
   auto repo = repo_opt.value();
   auto object = repo.read_object(object_name);

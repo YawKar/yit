@@ -73,11 +73,9 @@ class YitRepository {
    * @param path relative to `.yit/`.
    * @return path to the target file.
    */
-  fs::path get_repo_file(const std::initializer_list<fs::path> path,
-                         bool mkdir);
+  fs::path get_repo_file(const std::initializer_list<fs::path> path, bool mkdir);
 
-  std::variant<YitBlob, YitTree, YitCommit, YitTag> read_object(
-      const std::string sha);
+  std::variant<YitBlob, YitTree, YitCommit, YitTag> read_object(const std::string sha);
 
   std::string write_object(const YitObject& object, bool write);
 
