@@ -18,7 +18,8 @@ set(YIT_INTERNALS ${YIT_REPOSITORY} ${YIT_OBJECTS} ${YIT_TYPE})
 ## Add actions
 set(YIT_INIT_ACTION src/yit/actions/init/InitAction.cpp)
 set(YIT_CAT_FILE_ACTION src/yit/actions/catfile/CatFileAction.cpp)
-set(YIT_ACTIONS ${YIT_INIT_ACTION} ${YIT_CAT_FILE_ACTION})
+set(YIT_HASH_OBJECT_ACTION src/yit/actions/hashobject/HashObjectAction.cpp)
+set(YIT_ACTIONS ${YIT_INIT_ACTION} ${YIT_CAT_FILE_ACTION} ${YIT_HASH_OBJECT_ACTION})
 ## Add app
 set(YIT_APP src/yit/app/App.cpp)
 

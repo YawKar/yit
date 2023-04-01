@@ -14,8 +14,7 @@ namespace yit::internals {
 YitRepository YitRepository::initialize(const fs::path& work_tree_path) {
   YitRepository repo(work_tree_path, true);
   if (fs::exists(repo.yit_dir)) {
-    throw std::runtime_error(
-        fmt::format(".yit folder already exists: {}", repo.yit_dir.string()));
+    throw std::runtime_error(fmt::format(".yit folder already exists: {}", repo.yit_dir.string()));
   }
   repo.get_repo_dir({"branches"}, true);
   repo.get_repo_dir({"objects"}, true);
@@ -64,8 +63,7 @@ pt::ptree YitRepository::default_config() {
 YitRepository::YitRepository(const fs::path& work_tree_path, bool force)
     : work_tree(work_tree_path), yit_dir(work_tree_path / ".yit") {
   if (!((fs::exists(yit_dir) && fs::is_directory(yit_dir)) || force)) {
-    throw std::runtime_error(
-        fmt::format("Not a Yit repository: {}", work_tree.string()));
+    throw std::runtime_error(fmt::format("Not a Yit repository: {}", work_tree.string()));
   }
 
   auto config_path = yit_dir / "config";
@@ -76,18 +74,14 @@ YitRepository::YitRepository(const fs::path& work_tree_path, bool force)
   }
 
   if (!force) {
-    int repository_format_version =
-        config.get<int>("core.repositoryformatversion");
+    int repository_format_version = config.get<int>("core.repositoryformatversion");
     if (repository_format_version != 0) {
-      throw std::runtime_error(
-          fmt::format("Unsupported core.repositoryformatversion: {}",
-                      repository_format_version));
+      throw std::runtime_error(fmt::format("Unsupported core.repositoryformatversion: {}", repository_format_version));
     }
   }
 }
 
-fs::path YitRepository::get_repo_file(
-    const std::initializer_list<fs::path> path, bool mkdir) {
+fs::path YitRepository::get_repo_file(const std::initializer_list<fs::path> path, bool mkdir) {
   if (path.size() == 0) {
     throw std::runtime_error(fmt::format("File is not specified"));
   }
@@ -101,8 +95,7 @@ fs::path YitRepository::get_repo_file(
   return get_repo_dir({destination_dir_path}, mkdir) / file;
 }
 
-fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path,
-                                     bool mkdir) {
+fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path, bool mkdir) {
   auto repo_path = yit_dir;
   for (const auto& path_part : path) {
     repo_path /= path_part;
@@ -111,8 +104,7 @@ fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path,
     if (fs::is_directory(repo_path)) {
       return repo_path;
     } else {
-      throw std::runtime_error(
-          fmt::format("Not a directory", repo_path.string()));
+      throw std::runtime_error(fmt::format("Not a directory", repo_path.string()));
     }
   }
   if (mkdir) {
@@ -122,34 +114,25 @@ fs::path YitRepository::get_repo_dir(const std::initializer_list<fs::path> path,
 }
 
 bool YitRepository::is_valid_sha(const std::string& sha) {
-  return sha.length() == 40 && std::all_of(sha.begin(), sha.end(), [](char s) {
-           return std::isxdigit(s);
-         });
+  return sha.length() == 40 && std::all_of(sha.begin(), sha.end(), [](char s) { return std::isxdigit(s); });
 }
 
-std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
-    const std::string sha) {
+std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(const std::string sha) {
   if (!is_valid_sha(sha)) {
     throw std::runtime_error(fmt::format("Not a valid SHA-1 digest: {}", sha));
   }
   std::string lowercased_sha = sha;
-  std::transform(lowercased_sha.begin(), lowercased_sha.end(),
-                 lowercased_sha.begin(), ::tolower);
-  auto object_path = get_repo_file(
-      {"objects", lowercased_sha.substr(0, 2), lowercased_sha.substr(2)},
-      false);
+  std::transform(lowercased_sha.begin(), lowercased_sha.end(), lowercased_sha.begin(), ::tolower);
+  auto object_path = get_repo_file({"objects", lowercased_sha.substr(0, 2), lowercased_sha.substr(2)}, false);
   if (!fs::exists(object_path)) {
-    throw std::runtime_error(
-        fmt::format("Object not found: {}", lowercased_sha));
+    throw std::runtime_error(fmt::format("Object not found: {}", lowercased_sha));
   }
   zstr::ifstream object_file(object_path.string());
   object_file.unsetf(std::ios_base::skipws);
   std::string type;
   object_file >> type;
-  if (!(type == "tree" || type == "blob" || type == "commit" ||
-        type == "tag")) {
-    throw std::runtime_error(fmt::format(
-        "Malformed object {}: unknown type: {}", lowercased_sha, type));
+  if (!(type == "tree" || type == "blob" || type == "commit" || type == "tag")) {
+    throw std::runtime_error(fmt::format("Malformed object {}: unknown type: {}", lowercased_sha, type));
   }
   uint32_t size = 0;
   {
@@ -168,8 +151,7 @@ std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
   content.shrink_to_fit();
   if (size != content.size()) {
     throw std::runtime_error(
-        fmt::format("Malformed object {}: bad size (written: {}, real: {})",
-                    lowercased_sha, size, content.size()));
+        fmt::format("Malformed object {}: bad size (written: {}, real: {})", lowercased_sha, size, content.size()));
   }
   if (type == "blob") {
     return YitBlob(std::move(content));
@@ -180,8 +162,7 @@ std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
   } else if (type == "tag") {
     return YitTag(std::move(content));
   } else {
-    throw std::runtime_error(fmt::format(
-        "Malformed object {}: unknown type: {}", lowercased_sha, type));
+    throw std::runtime_error(fmt::format("Malformed object {}: unknown type: {}", lowercased_sha, type));
   }
 }
 
@@ -197,23 +178,22 @@ std::string YitRepository::write_object(const YitObject& object, bool write) {
     result.push_back(c);
   }
   CryptoPP::SHA1 hash;
-  hash.Update(data.data(), data.size());
+  hash.Update(reinterpret_cast<uint8_t*>(result.data()), result.size());
   std::string digest;
   digest.resize(hash.DigestSize());
   hash.Final(reinterpret_cast<uint8_t*>(&digest[0]));
   std::string hex_digest;
   hex_digest.reserve(40);
   auto tohex = [](const char c) -> char {
-    static std::string alphabet = "01234567890ABCDEF";
+    static std::string alphabet = "0123456789abcdef";
     return alphabet.at(c);
   };
-  for (const char c : digest) {
-    hex_digest.push_back(tohex(c >> 4));
+  for (const uint8_t c : digest) {
+    hex_digest.push_back(tohex(c >> 4u));
     hex_digest.push_back(tohex(c & 0xF));
   }
   if (write) {
-    auto file_path = get_repo_file(
-        {"objects", hex_digest.substr(0, 2), hex_digest.substr(2)}, true);
+    auto file_path = get_repo_file({"objects", hex_digest.substr(0, 2), hex_digest.substr(2)}, true);
     zstr::ofstream outstream(file_path.string());
     outstream << result;
   }

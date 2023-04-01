@@ -11,6 +11,7 @@ class App {
  private:
   void subcommand_init(std::vector<std::string>& args);
   void subcommand_cat_file(std::vector<std::string>& args);
+  void subcommand_hash_object(std::vector<std::string>& args);
   bool does_contain_general_help(std::vector<std::string>& args);
   void print_warning_about_unrecognized_options(
       std::vector<std::string>& unrecognized);
