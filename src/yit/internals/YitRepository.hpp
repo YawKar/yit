@@ -79,7 +79,7 @@ class YitRepository {
   std::variant<YitBlob, YitTree, YitCommit, YitTag> read_object(
       const std::string sha);
 
-  std::string write_object(const YitObject& object);
+  std::string write_object(const YitObject& object, bool write);
 
   /**
    * @return path to the working tree directory

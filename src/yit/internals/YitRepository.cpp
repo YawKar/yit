@@ -6,6 +6,7 @@
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <string>
 #include <zstr.hpp>
 
 namespace yit::internals {
@@ -184,10 +185,39 @@ std::variant<YitBlob, YitTree, YitCommit, YitTag> YitRepository::read_object(
   }
 }
 
-std::string YitRepository::write_object(const YitObject& object) {
-  // TODO: rewrite using OOP
-  std::string result = std::to_string(object.serialize().size());
-  return result;
+std::string YitRepository::write_object(const YitObject& object, bool write) {
+  if (object.get_type() == YitType::unknown) {
+    throw std::runtime_error("Yit object's type is unknown");
+  }
+  auto type = internals::to_string(object.get_type());
+  auto data = object.serialize();
+  std::string result = type + ' ' + std::to_string(data.size()) + '\x00';
+  result.reserve(result.size() + data.size());
+  for (const uint8_t c : data) {
+    result.push_back(c);
+  }
+  CryptoPP::SHA1 hash;
+  hash.Update(data.data(), data.size());
+  std::string digest;
+  digest.resize(hash.DigestSize());
+  hash.Final(reinterpret_cast<uint8_t*>(&digest[0]));
+  std::string hex_digest;
+  hex_digest.reserve(40);
+  auto tohex = [](const char c) -> char {
+    static std::string alphabet = "01234567890ABCDEF";
+    return alphabet.at(c);
+  };
+  for (const char c : digest) {
+    hex_digest.push_back(tohex(c >> 4));
+    hex_digest.push_back(tohex(c & 0xF));
+  }
+  if (write) {
+    auto file_path = get_repo_file(
+        {"objects", hex_digest.substr(0, 2), hex_digest.substr(2)}, true);
+    zstr::ofstream outstream(file_path.string());
+    outstream << result;
+  }
+  return hex_digest;
 }
 
 fs::path YitRepository::get_work_tree() { return work_tree; }
